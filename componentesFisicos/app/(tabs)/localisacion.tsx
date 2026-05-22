@@ -4,6 +4,8 @@ import {Text,View,StyleSheet,Button,Alert} from "react-native"
 import * as Location from 'expo-location'
 //Importacion de los mapas
 import MapView, {Marker} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+
 
 export default function gpsPantalla(){
     //Paso 2. Gestion de estados
@@ -42,10 +44,15 @@ export default function gpsPantalla(){
         //Obtener la latitud y longitud 
         let ubicacionActual=await Location.getCurrentPositionAsync({
             accuracy:Location.Accuracy.Balanced,
+            
         });
         setLocalisacion(ubicacionActual)
     };
 
+    //Configuracion de la api
+    const apiMaps="";
+    const origen={latutude:localisacion.coords.latitude,longitude:localisacion.coords.longitude}
+    const destino={latutude:-17.9708429,longitude:-67.1221269}
     return(
         <View>
             <Text>Sensor GPS</Text>
@@ -75,6 +82,13 @@ export default function gpsPantalla(){
                 title="Mi Ubicacion Actual"
                 description="Prueba Ubicacion...."
             />
+            <MapViewDirections
+                apikey={apiMaps}
+                mode="DRIVING"
+                origin={origen}
+                destination={destino}
+            >
+            </MapViewDirections>
 
         </MapView>
 
