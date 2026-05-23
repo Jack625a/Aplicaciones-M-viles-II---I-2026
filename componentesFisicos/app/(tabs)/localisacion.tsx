@@ -1,103 +1,112 @@
-//Paso 1. importacion de librerias
-import React, {useState,useEffect } from "react";
-import {Text,View,StyleSheet,Button,Alert} from "react-native"
-import * as Location from 'expo-location'
-//Importacion de los mapas
-import MapView, {Marker} from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
+// Paso 1. Importación de librerías
+import React, { useState, useEffect } from "react";
+import { Text, View, StyleSheet, Button, ActivityIndicator, Platform } from "react-native"; // <-- Importamos Platform
+import * as Location from 'expo-location';
 
+// Creamos variables vacías para los mapas
+let MapView, Marker, MapViewDirections;
 
-export default function gpsPantalla(){
-    //Paso 2. Gestion de estados
-    const [localisacion,setLocalisacion]=useState(null);
-    const [mensajeError,setMensajeError]=useState(null);
+// SOLUCIÓN AL ERROR METRO: Solo importamos los mapas si NO estamos en la Web
+if (Platform.OS !== 'web') {
+    MapView = require('react-native-maps').default;
+    Marker = require('react-native-maps').Marker;
+    MapViewDirections = require('react-native-maps-directions').default;
+}
 
-    useEffect(()=>{
-        (async()=>{
-             //Pedir los permisos
-            let {status}=await Location.requestForegroundPermissionsAsync();
+export default function GpsPantalla() {
+    const [localisacion, setLocalisacion] = useState(null);
+    const [mensajeError, setMensajeError] = useState(null);
 
-            if (status!== 'granted'){
-                setMensajeError('Permiso de ubicacion denegado...');
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setMensajeError('Permiso de ubicación denegado...');
                 alert("Permisos denegados...");
                 return;
             }
-            //Obtener la latitud y longitud 
-            let ubicacionActual=await Location.getCurrentPositionAsync({
-                accuracy:Location.Accuracy.Balanced,
+            
+            let ubicacionActual = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
             });
             setLocalisacion(ubicacionActual);
-            }
+        })();
+    }, []);
 
-        )();
-    },[]);
-
-    //Paso3. Funcion para obtener la ubicacion
-    const obtenerUbicacion= async()=>{
-        //Pedir los permisos
-        let {status}=await Location.requestForegroundPermissionsAsync();
-
-        if (status!== 'granted'){
-            setMensajeError('Permiso de ubicacion denegado...');
+    const obtenerUbicacion = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            setMensajeError('Permiso de ubicación denegado...');
             return;
         }
-        //Obtener la latitud y longitud 
-        let ubicacionActual=await Location.getCurrentPositionAsync({
-            accuracy:Location.Accuracy.Balanced,
-            
+        let ubicacionActual = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
         });
-        setLocalisacion(ubicacionActual)
+        setLocalisacion(ubicacionActual);
     };
 
-    //Configuracion de la api
-    const apiMaps="";
-    const origen={latutude:localisacion.coords.latitude,longitude:localisacion.coords.longitude}
-    const destino={latutude:-17.9708429,longitude:-67.1221269}
-    return(
-        <View>
-            <Text>Sensor GPS</Text>
-            {localisacion? (
-                <View>
-                    <Text>Latitud: {localisacion.coords.latitude} </Text>
-                    <Text>Longitud: {localisacion.coords.longitude} </Text>
-                </View>
-            ):(
-                <Text>Error vuelva a intentarlo</Text>
-            )
-        }
-        <Button title="Obtener Ubicacion" onPress={obtenerUbicacion}></Button>
-        <MapView style={styles.mapa}
-            initialRegion={{
-                latitude:localisacion.coords.latitude,
-                longitude:localisacion.coords.longitude,
-                latitudeDelta:0.01,
-                longitudeDelta:0.01
-            }}
-        >
-            <Marker
-                coordinate={{
-                    latitude:localisacion.coords.latitude,
-                    longitude:localisacion.coords.longitude
+
+    if (!localisacion) {
+        return (
+            <View style={styles.centrado}>
+                <ActivityIndicator size="large" color="#007bff" />
+                <Text style={{ marginTop: 10 }}>Cargando Satélites GPS...</Text>
+                {mensajeError && <Text style={{ color: 'red' }}>{mensajeError}</Text>}
+            </View>
+        );
+    }
+
+    const apiMaps = "TU_API_KEY_AQUÍ"; 
+    const origen = { latitude: localisacion.coords.latitude, longitude: localisacion.coords.longitude };
+    const destino = { latitude: -17.9708429, longitude: -67.1221269 };
+
+    return (
+        <View style={styles.contenedor}>
+            <View style={styles.panelInfo}>
+                <Text style={styles.titulo}>Sensor GPS</Text>
+                <Text>Latitud: {localisacion.coords.latitude} </Text>
+                <Text>Longitud: {localisacion.coords.longitude} </Text>
+                <Button title="Actualizar Ubicación" onPress={obtenerUbicacion} />
+            </View>
+
+            <MapView 
+                style={styles.mapa}
+                initialRegion={{
+                    latitude: localisacion.coords.latitude,
+                    longitude: localisacion.coords.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01
                 }}
-                title="Mi Ubicacion Actual"
-                description="Prueba Ubicacion...."
-            />
-            <MapViewDirections
-                apikey={apiMaps}
-                mode="DRIVING"
-                origin={origen}
-                destination={destino}
             >
-            </MapViewDirections>
+                <Marker
+                    coordinate={origen}
+                    title="Mi Ubicación Actual"
+                    pinColor="blue"
+                />
 
-        </MapView>
+                <Marker
+                    coordinate={destino}
+                    title="Destino"
+                    pinColor="red"
+                />
 
+                <MapViewDirections
+                    apikey={apiMaps}
+                    mode="DRIVING"
+                    origin={origen}
+                    destination={destino}
+                    strokeWidth={4}
+                    strokeColor="#6200ee"
+                />
+            </MapView>
         </View>
     );
 }
-const styles= StyleSheet.create({
-    mapa:{
-        width:"100%",
-        height:"100%"
-    }
-})
+
+const styles = StyleSheet.create({
+    contenedor: { flex: 1, backgroundColor: '#fff' },
+    centrado: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    panelInfo: { padding: 20, backgroundColor: '#f8f9fa', zIndex: 1 },
+    titulo: { fontSize: 18, fontWeight: 'bold', marginBottom: 5, textAlign: 'center' },
+    mapa: { flex: 1 }
+});
