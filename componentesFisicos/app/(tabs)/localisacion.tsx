@@ -6,12 +6,15 @@ import * as Location from 'expo-location';
 // Creamos variables vacías para los mapas
 let MapView, Marker, MapViewDirections;
 
-// SOLUCIÓN AL ERROR METRO: Solo importamos los mapas si NO estamos en la Web
-if (Platform.OS !== 'web') {
-    MapView = require('react-native-maps').default;
-    Marker = require('react-native-maps').Marker;
-    MapViewDirections = require('react-native-maps-directions').default;
+//solucion incomptibilidad de la seccion web
+if (Platform.OS !=="web"){
+    MapView=require('react-native-maps');
+    Marker=require("react-native-maps").Marker;
+    MapViewDirections=require("react-native-maps-directions").default;
+
 }
+
+
 
 export default function GpsPantalla() {
     const [localisacion, setLocalisacion] = useState(null);
