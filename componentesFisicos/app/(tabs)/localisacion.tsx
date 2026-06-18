@@ -59,7 +59,7 @@ export default function GpsPantalla() {
         );
     }
 
-    const apiMaps = "TU_API_KEY_AQUÍ"; 
+    const apiMaps = "AIzaSyARTADqD2vuvMaHhfaiL0E-peLs5c-icD8"; 
     const origen = { latitude: localisacion.coords.latitude, longitude: localisacion.coords.longitude };
     const destino = { latitude: -17.9708429, longitude: -67.1221269 };
 
