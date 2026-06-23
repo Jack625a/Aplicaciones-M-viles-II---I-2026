@@ -20,6 +20,7 @@ import {
 
 // Configuración Firebase
 const firebaseConfig = {
+  
  
 };
 
@@ -82,6 +83,49 @@ export default function Login() {
   };
 
   return (
+    <View style={styles.contenedor}>
+      <Text>Inicio de Sesion Firebase</Text>
+      <TextInput
+        style={styles.cajas}
+        placeholder="Ingrese su correo: "
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        placeholder="Ingrese su contraseña"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <View>
+        <Button
+          title="Iniciar Sesion"
+          onPress={entrar}
+        />
+      </View>
+      <View>
+        <Button
+          title="Registrarse"
+          onPress={registrar}
+        />
+      </View>
+      
+    </View>
 
   );
 }
+
+const styles=StyleSheet.create({
+  contenedor:{
+    padding:20,
+    flex: 1,
+    justifyContent:"center"
+  },
+  cajas:{
+    width:100,
+    borderColor:"rgb(154, 153, 153)",
+    borderWidth:2
+  }
+
+})
